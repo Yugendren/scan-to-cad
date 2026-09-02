@@ -1,0 +1,143 @@
+{
+  "spec_sorted_mm": [
+    160.0,
+    106.0,
+    66.0
+  ],
+  "phone": {
+    "faces": 19072,
+    "bbox_sorted_mm": [
+      158.01,
+      108.6,
+      56.46
+    ],
+    "bbox_minus_spec_mm": [
+      -1.99,
+      2.6,
+      -9.54
+    ]
+  },
+  "references": {
+    "kabliga": {
+      "faces": 149982,
+      "bbox_sorted_mm": [
+        160.51,
+        112.35,
+        60.57
+      ],
+      "bbox_minus_spec_mm": [
+        0.51,
+        6.35,
+        -5.43
+      ],
+      "watertight": false
+    },
+    "v3design": {
+      "faces": 150000,
+      "bbox_sorted_mm": [
+        159.69,
+        109.28,
+        60.45
+      ],
+      "bbox_minus_spec_mm": [
+        -0.31,
+        3.28,
+        -5.55
+      ],
+      "watertight": true
+    },
+    "printables1508424": {
+      "faces": 143132,
+      "bbox_sorted_mm": [
+        159.65,
+        105.75,
+        65.77
+      ],
+      "bbox_minus_spec_mm": [
+        -0.35,
+        -0.25,
+        -0.23
+      ],
+      "watertight": true
+    }
+  },
+  "phone_vs_reference": {
+    "kabliga": {
+      "rigid_icp_cost": 0.0133,
+      "phone_to_ref": {
+        "median_mm": 2.932,
+        "p95_mm": 7.104,
+        "max_mm": 13.199,
+        "frac_over_0p5mm": 0.928,
+        "frac_over_1mm": 0.855
+      },
+      "ref_to_phone": {
+        "median_mm": 3.316,
+        "p95_mm": 8.914,
+        "max_mm": 19.473,
+        "frac_over_0p5mm": 0.937,
+        "frac_over_1mm": 0.875
+      },
+      "best_fit_scale_ref_to_phone": 0.9189,
+      "implied_phone_scale_error_pct": 8.82
+    },
+    "v3design": {
+      "rigid_icp_cost": 0.0132,
+      "phone_to_ref": {
+        "median_mm": 2.896,
+        "p95_mm": 6.796,
+        "max_mm": 12.836,
+        "frac_over_0p5mm": 0.906,
+        "frac_over_1mm": 0.811
+      },
+      "ref_to_phone": {
+        "median_mm": 3.243,
+        "p95_mm": 8.214,
+        "max_mm": 18.661,
+        "frac_over_0p5mm": 0.918,
+        "frac_over_1mm": 0.842
+      },
+      "best_fit_scale_ref_to_phone": 0.9279,
+      "implied_phone_scale_error_pct": 7.77
+    },
+    "printables1508424": {
+      "rigid_icp_cost": 0.0128,
+      "phone_to_ref": {
+        "median_mm": 2.957,
+        "p95_mm": 7.028,
+        "max_mm": 12.621,
+        "frac_over_0p5mm": 0.904,
+        "frac_over_1mm": 0.818
+      },
+      "ref_to_phone": {
+        "median_mm": 3.252,
+        "p95_mm": 8.498,
+        "max_mm": 17.834,
+        "frac_over_0p5mm": 0.914,
+        "frac_over_1mm": 0.838
+      },
+      "best_fit_scale_ref_to_phone": 0.9292,
+      "implied_phone_scale_error_pct": 7.62
+    }
+  },
+  "reference_vs_reference": {
+    "kabliga_vs_v3design": {
+      "rigid_icp_cost": 0.0001,
+      "median_mm": 0.15,
+      "p95_mm": 0.569,
+      "max_mm": 3.576,
+      "frac_over_0p5mm": 0.077,
+      "frac_over_1mm": 0.013
+    },
+    "kabliga_vs_printables1508424": {
+      "rigid_icp_cost": 0.0003,
+      "median_mm": 0.177,
+      "p95_mm": 0.589,
+      "max_mm": 7.313,
+      "frac_over_0p5mm": 0.067,
+      "frac_over_1mm": 0.024
+    }
+  },
+  "notes": [],
+  "runtime_s": 108.3
+}

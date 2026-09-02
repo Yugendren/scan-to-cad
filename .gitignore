@@ -7,3 +7,5 @@ devset/inputs/*.stl
 devset/inputs/*.usdz
 devset/out/
 devset/exam/
+devset/reference/*.stl
+devset/reference/*.3mf
