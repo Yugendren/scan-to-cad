@@ -26,6 +26,7 @@ prior work: ../NOVELTY.md.
 | 16 | 16-market-reality-stl-reframe.md | KILL II: Fiverr demand; STL→parametric is the bigger door |
 | 17 | 17-methods-census.md | Who already does each pipeline stage — novelty verdict (see ../NOVELTY.md) |
 | 18 | 18-design-around-verification.md | Does "phone scan → reference to design around" exist? (nothing whole; pieces in pro tools; Backflip one decision away; physics unproven) |
+| 19 | 19-ai-scan-edit-and-buyers.md | "AI scan edit for fit" (recognize → fix in place): not a category; who pays today (body-fit verticals, RE shops, then creators) |
 
 Published records (artifacts): "From Prompt to Matter" (01–06),
 "The Pain Ledger" (08–10), "Scan-to-CAD Dossier" (11–13).
