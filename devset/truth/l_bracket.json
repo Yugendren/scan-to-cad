@@ -1,0 +1,47 @@
+{
+  "name": "l_bracket",
+  "class": "prismatic",
+  "dims_mm": {
+    "base_length": 60,
+    "width": 40,
+    "thickness": 3,
+    "upright_height": 40,
+    "hole_diameter": 5,
+    "hole_pitch": 20
+  },
+  "bbox_mm": [
+    60,
+    40,
+    40
+  ],
+  "scanner_stats": {
+    "views": 10,
+    "hits": 19923,
+    "dropped_grazing": 5216,
+    "dropped_holes": 312,
+    "points": 19611,
+    "faces_out": 58367,
+    "sample_spacing_mm": 0.3268,
+    "config": {
+      "views": 12,
+      "rays_per_view": 6000,
+      "depth_noise_mm": 0.08,
+      "grazing_dropout_deg": 70.0,
+      "hole_patches": 3,
+      "hole_radius_frac": 0.06,
+      "registration_jitter_mm": 0.15,
+      "registration_jitter_deg": 0.3,
+      "poisson_depth": 7,
+      "trim_distance_factor": 3.0,
+      "seed": 2
+    }
+  },
+  "truth_stl": "/Users/yugendren/experiments/scan_to_cad/devset/truth/l_bracket_truth.stl",
+  "truth_bbox_measured": [
+    60.0,
+    40.0,
+    40.0
+  ],
+  "scan_faces": 58367,
+  "scan_watertight": false
+}

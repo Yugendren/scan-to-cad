@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 evidence/out/
 .DS_Store
+devset/inputs/*.stl
+devset/inputs/*.usdz
+devset/out/

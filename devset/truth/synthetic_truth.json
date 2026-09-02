@@ -1,0 +1,211 @@
+{
+  "synth_l_bracket.stl": {
+    "name": "l_bracket",
+    "class": "prismatic",
+    "dims_mm": {
+      "base_length": 60,
+      "width": 40,
+      "thickness": 3,
+      "upright_height": 40,
+      "hole_diameter": 5,
+      "hole_pitch": 20
+    },
+    "bbox_mm": [
+      60,
+      40,
+      40
+    ],
+    "scanner_stats": {
+      "views": 10,
+      "hits": 19923,
+      "dropped_grazing": 5216,
+      "dropped_holes": 312,
+      "points": 19611,
+      "faces_out": 58367,
+      "sample_spacing_mm": 0.3268,
+      "config": {
+        "views": 12,
+        "rays_per_view": 6000,
+        "depth_noise_mm": 0.08,
+        "grazing_dropout_deg": 70.0,
+        "hole_patches": 3,
+        "hole_radius_frac": 0.06,
+        "registration_jitter_mm": 0.15,
+        "registration_jitter_deg": 0.3,
+        "poisson_depth": 7,
+        "trim_distance_factor": 3.0,
+        "seed": 2
+      }
+    },
+    "truth_stl": "/Users/yugendren/experiments/scan_to_cad/devset/truth/l_bracket_truth.stl",
+    "truth_bbox_measured": [
+      60.0,
+      40.0,
+      40.0
+    ],
+    "scan_faces": 58367,
+    "scan_watertight": false
+  },
+  "synth_flange.stl": {
+    "name": "flange",
+    "class": "prismatic",
+    "dims_mm": {
+      "outer_diameter": 70,
+      "thickness": 8,
+      "bore_diameter": 30,
+      "bolt_hole_diameter": 6.5,
+      "bolt_circle_diameter": 55
+    },
+    "bbox_mm": [
+      70,
+      70,
+      8
+    ],
+    "scanner_stats": {
+      "views": 10,
+      "hits": 15012,
+      "dropped_grazing": 2594,
+      "dropped_holes": 284,
+      "points": 14728,
+      "faces_out": 51594,
+      "sample_spacing_mm": 0.3938,
+      "config": {
+        "views": 12,
+        "rays_per_view": 6000,
+        "depth_noise_mm": 0.08,
+        "grazing_dropout_deg": 70.0,
+        "hole_patches": 3,
+        "hole_radius_frac": 0.06,
+        "registration_jitter_mm": 0.15,
+        "registration_jitter_deg": 0.3,
+        "poisson_depth": 8,
+        "trim_distance_factor": 3.0,
+        "seed": 0
+      }
+    },
+    "truth_stl": "/Users/yugendren/experiments/scan_to_cad/devset/truth/flange_truth.stl",
+    "truth_bbox_measured": [
+      70.0,
+      70.0,
+      8.0
+    ],
+    "scan_faces": 51594,
+    "scan_watertight": false
+  },
+  "synth_pocket_block.stl": {
+    "name": "pocket_block",
+    "class": "prismatic",
+    "dims_mm": {
+      "length": 50,
+      "width": 30,
+      "height": 20,
+      "pocket": [
+        30,
+        15,
+        10
+      ],
+      "through_hole_diameter": 8
+    },
+    "bbox_mm": [
+      50,
+      30,
+      20
+    ],
+    "scanner_stats": {
+      "views": 10,
+      "hits": 24675,
+      "dropped_grazing": 4657,
+      "dropped_holes": 315,
+      "points": 24360,
+      "faces_out": 63934,
+      "sample_spacing_mm": 0.267,
+      "config": {
+        "views": 12,
+        "rays_per_view": 6000,
+        "depth_noise_mm": 0.08,
+        "grazing_dropout_deg": 70.0,
+        "hole_patches": 3,
+        "hole_radius_frac": 0.06,
+        "registration_jitter_mm": 0.15,
+        "registration_jitter_deg": 0.3,
+        "poisson_depth": 7,
+        "trim_distance_factor": 3.0,
+        "seed": 2
+      }
+    },
+    "truth_stl": "/Users/yugendren/experiments/scan_to_cad/devset/truth/pocket_block_truth.stl",
+    "truth_bbox_measured": [
+      50.0,
+      30.0,
+      20.0
+    ],
+    "scan_faces": 63934,
+    "scan_watertight": false
+  },
+  "_attempts": [
+    {
+      "part": "l_bracket",
+      "seed": 0,
+      "depth": 8,
+      "ok": false,
+      "seconds": 5.9,
+      "stderr_tail": [
+        "[ERROR] Failed to close loop [7: 12 79 205] | (276006): 6311199226463258"
+      ]
+    },
+    {
+      "part": "l_bracket",
+      "seed": 1,
+      "depth": 8,
+      "ok": false,
+      "seconds": 5.7,
+      "stderr_tail": [
+        "[ERROR] Failed to close loop [7: 15 190 67] | (240173): 5097338854966304"
+      ]
+    },
+    {
+      "part": "l_bracket",
+      "seed": 2,
+      "depth": 7,
+      "ok": true,
+      "seconds": 4.3,
+      "stderr_tail": []
+    },
+    {
+      "part": "flange",
+      "seed": 0,
+      "depth": 8,
+      "ok": true,
+      "seconds": 9.0,
+      "stderr_tail": []
+    },
+    {
+      "part": "pocket_block",
+      "seed": 0,
+      "depth": 8,
+      "ok": false,
+      "seconds": 5.7,
+      "stderr_tail": [
+        "[ERROR] Failed to close loop [7: 230 60 81] | (287736): 5224881658529229"
+      ]
+    },
+    {
+      "part": "pocket_block",
+      "seed": 1,
+      "depth": 8,
+      "ok": false,
+      "seconds": 5.6,
+      "stderr_tail": [
+        "[ERROR] Failed to close loop [7: 240 64 123] | (295888): 5594317582239201"
+      ]
+    },
+    {
+      "part": "pocket_block",
+      "seed": 2,
+      "depth": 7,
+      "ok": true,
+      "seconds": 4.4,
+      "stderr_tail": []
+    }
+  ]
+}

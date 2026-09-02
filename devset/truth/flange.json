@@ -1,0 +1,46 @@
+{
+  "name": "flange",
+  "class": "prismatic",
+  "dims_mm": {
+    "outer_diameter": 70,
+    "thickness": 8,
+    "bore_diameter": 30,
+    "bolt_hole_diameter": 6.5,
+    "bolt_circle_diameter": 55
+  },
+  "bbox_mm": [
+    70,
+    70,
+    8
+  ],
+  "scanner_stats": {
+    "views": 10,
+    "hits": 15012,
+    "dropped_grazing": 2594,
+    "dropped_holes": 284,
+    "points": 14728,
+    "faces_out": 51594,
+    "sample_spacing_mm": 0.3938,
+    "config": {
+      "views": 12,
+      "rays_per_view": 6000,
+      "depth_noise_mm": 0.08,
+      "grazing_dropout_deg": 70.0,
+      "hole_patches": 3,
+      "hole_radius_frac": 0.06,
+      "registration_jitter_mm": 0.15,
+      "registration_jitter_deg": 0.3,
+      "poisson_depth": 8,
+      "trim_distance_factor": 3.0,
+      "seed": 0
+    }
+  },
+  "truth_stl": "/Users/yugendren/experiments/scan_to_cad/devset/truth/flange_truth.stl",
+  "truth_bbox_measured": [
+    70.0,
+    70.0,
+    8.0
+  ],
+  "scan_faces": 51594,
+  "scan_watertight": false
+}

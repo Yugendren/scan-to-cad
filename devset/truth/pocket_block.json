@@ -1,0 +1,50 @@
+{
+  "name": "pocket_block",
+  "class": "prismatic",
+  "dims_mm": {
+    "length": 50,
+    "width": 30,
+    "height": 20,
+    "pocket": [
+      30,
+      15,
+      10
+    ],
+    "through_hole_diameter": 8
+  },
+  "bbox_mm": [
+    50,
+    30,
+    20
+  ],
+  "scanner_stats": {
+    "views": 10,
+    "hits": 24675,
+    "dropped_grazing": 4657,
+    "dropped_holes": 315,
+    "points": 24360,
+    "faces_out": 63934,
+    "sample_spacing_mm": 0.267,
+    "config": {
+      "views": 12,
+      "rays_per_view": 6000,
+      "depth_noise_mm": 0.08,
+      "grazing_dropout_deg": 70.0,
+      "hole_patches": 3,
+      "hole_radius_frac": 0.06,
+      "registration_jitter_mm": 0.15,
+      "registration_jitter_deg": 0.3,
+      "poisson_depth": 7,
+      "trim_distance_factor": 3.0,
+      "seed": 2
+    }
+  },
+  "truth_stl": "/Users/yugendren/experiments/scan_to_cad/devset/truth/pocket_block_truth.stl",
+  "truth_bbox_measured": [
+    50.0,
+    30.0,
+    20.0
+  ],
+  "scan_faces": 63934,
+  "scan_watertight": false
+}
