@@ -47,12 +47,15 @@ class IdealizeResult:
 
 
 def grow_planar_regions(mesh: trimesh.Trimesh, angle_deg: float = 6.0, min_faces: int = 30,
-                        min_area_frac: float = 0.005):
+                        min_area_frac: float = 0.005, dist_tol_mm: float | None = None):
     """Region growing over face adjacency: a face joins a region if its normal is within
-    angle_deg of the region's running mean normal. A region is kept if it has at least
-    min_faces faces OR at least min_area_frac of the total area — the area rule matters
-    for clean CAD meshes, where a whole flat face can be two large triangles."""
+    angle_deg of the region's running mean normal AND (when dist_tol_mm is set) its
+    centroid lies within dist_tol_mm of the region's running plane. The distance test
+    is what separates parallel surfaces at different heights — e.g. individual key
+    tops — instead of merging everything that faces the same way. A region is kept if
+    it has at least min_faces faces OR at least min_area_frac of the total area."""
     n = mesh.face_normals
+    cen = mesh.triangles_center
     adj = mesh.face_adjacency
     nf = len(mesh.faces)
     neighbors = [[] for _ in range(nf)]
@@ -72,18 +75,24 @@ def grow_planar_regions(mesh: trimesh.Trimesh, angle_deg: float = 6.0, min_faces
         members = [seed]
         label[seed] = rid
         mean = n[seed].copy()
+        c_mean = cen[seed].copy()
         stack = [seed]
         while stack:
             f = stack.pop()
             for g in neighbors[f]:
                 if label[g] != -1:
                     continue
-                if n[g] @ mean >= cos_thr:
-                    label[g] = rid
-                    members.append(g)
-                    stack.append(g)
-                    mean = mean + (n[g] - mean) / len(members)
-                    mean /= np.linalg.norm(mean)
+                if n[g] @ mean < cos_thr:
+                    continue
+                if dist_tol_mm is not None and abs((cen[g] - c_mean) @ mean) > dist_tol_mm:
+                    continue
+                label[g] = rid
+                members.append(g)
+                stack.append(g)
+                k = len(members)
+                mean = mean + (n[g] - mean) / k
+                mean /= np.linalg.norm(mean)
+                c_mean = c_mean + (cen[g] - c_mean) / k
         members = np.asarray(members)
         area = float(mesh.area_faces[members].sum())
         if len(members) >= min_faces or area >= min_area_frac * total_area:
@@ -105,7 +114,8 @@ def planar_area_fraction(mesh: trimesh.Trimesh, fit_tol_mm: float, angle_deg: fl
     similarity, then kept only if the p95 residual of their vertices from a fitted
     plane is within fit_tol_mm. Curved strips that region growing happens to merge
     fail the residual test, so organic meshes score low. Returns (fraction, count)."""
-    regions = grow_planar_regions(mesh, angle_deg=angle_deg, min_faces=min_faces)
+    regions = grow_planar_regions(mesh, angle_deg=angle_deg, min_faces=min_faces,
+                                  dist_tol_mm=2.0 * fit_tol_mm)
     total = float(mesh.area)
     if not regions or total == 0:
         return 0.0, 0
@@ -130,7 +140,8 @@ def idealize(mesh: trimesh.Trimesh, mesh_class: str, budget_mm: float,
         return mesh, IdealizeResult(False, mesh_class, budget_mm, 0, 0, 0,
                                     note=f"class '{mesh_class}': organic/mixed surfaces are never snapped")
 
-    regions = grow_planar_regions(mesh, angle_deg=angle_deg, min_faces=min_faces)
+    regions = grow_planar_regions(mesh, angle_deg=angle_deg, min_faces=min_faces,
+                                  dist_tol_mm=2.0 * budget_mm)
     total_area = float(mesh.area)
     v = mesh.vertices.copy()
     faces = mesh.faces
