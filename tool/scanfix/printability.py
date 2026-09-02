@@ -20,6 +20,7 @@ class ThicknessReport:
     min_wall_mm: float
     nozzle2x_mm: float
     thin_region_count: int
+    thin_regions: list[dict] = field(default_factory=list)
     note: str = ""
 
     def to_dict(self) -> dict:
@@ -75,23 +76,32 @@ def wall_thickness(mesh: trimesh.Trimesh, nozzle: float, min_wall: float,
     n2 = 2 * nozzle
     below_min = float((valid < min_wall).mean())
     below_n2 = float((valid < n2).mean())
-    # crude region count: cluster thin sample points spatially
-    thin_pts = pts[~np.isnan(thick)][thick[~np.isnan(thick)] < max(min_wall, n2)]
-    regions = 0
+    # thin regions: cluster thin sample points spatially and report where they are
+    mask = (~np.isnan(thick)) & (thick < max(min_wall, n2))
+    thin_pts = pts[mask]
+    thin_val = thick[mask]
+    regions, where = 0, []
     if len(thin_pts):
         from scipy.cluster.hierarchy import fcluster, linkage
-        if len(thin_pts) > 1:
-            z = linkage(thin_pts[: min(len(thin_pts), 1500)], method="single")
-            regions = int(fcluster(z, t=max(mesh.extents) * 0.05, criterion="distance").max())
+        sub, subv = thin_pts[:1500], thin_val[:1500]
+        if len(sub) > 1:
+            labels = fcluster(linkage(sub, method="single"), t=max(mesh.extents) * 0.05, criterion="distance")
         else:
-            regions = 1
+            labels = np.ones(1, dtype=int)
+        regions = int(labels.max())
+        for lab in np.unique(labels):
+            m = labels == lab
+            where.append({"center_mm": [round(float(x), 1) for x in sub[m].mean(axis=0)],
+                          "samples": int(m.sum()), "min_mm": round(float(subv[m].min()), 3)})
+        where.sort(key=lambda r: -r["samples"])
     return ThicknessReport(
         samples=samples, min_mm=round(float(valid.min()), 3),
         p05_mm=round(float(np.percentile(valid, 5)), 3),
         median_mm=round(float(np.median(valid)), 3),
         below_min_wall_frac=round(below_min, 4), below_nozzle2x_frac=round(below_n2, 4),
-        min_wall_mm=min_wall, nozzle2x_mm=n2, thin_region_count=regions,
-        note="sampling-based estimate (3000 inward rays); flags are fractions of surface samples")
+        min_wall_mm=min_wall, nozzle2x_mm=n2, thin_region_count=regions, thin_regions=where[:10],
+        note="sampling-based estimate (3000 inward rays); flags are fractions of surface samples; "
+             "thin_regions lists where the thin samples cluster (largest first)")
 
 
 def suggest_orientation(mesh: trimesh.Trimesh, overhang_deg: float = 45.0) -> OrientationReport:

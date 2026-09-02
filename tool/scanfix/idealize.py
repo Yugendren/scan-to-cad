@@ -99,6 +99,28 @@ def fit_plane(points: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return c, vt[-1]
 
 
+def planar_area_fraction(mesh: trimesh.Trimesh, fit_tol_mm: float, angle_deg: float = 6.0,
+                         min_faces: int = 30) -> tuple[float, int]:
+    """Share of surface area in regions that are TRULY planar: grown by normal
+    similarity, then kept only if the p95 residual of their vertices from a fitted
+    plane is within fit_tol_mm. Curved strips that region growing happens to merge
+    fail the residual test, so organic meshes score low. Returns (fraction, count)."""
+    regions = grow_planar_regions(mesh, angle_deg=angle_deg, min_faces=min_faces)
+    total = float(mesh.area)
+    if not regions or total == 0:
+        return 0.0, 0
+    v = mesh.vertices
+    planar_area, count = 0.0, 0
+    for fr in regions:
+        vids = np.unique(mesh.faces[fr].ravel())
+        c, n = fit_plane(v[vids])
+        d = np.abs((v[vids] - c) @ n)
+        if np.percentile(d, 95) <= fit_tol_mm:
+            planar_area += float(mesh.area_faces[fr].sum())
+            count += 1
+    return planar_area / total, count
+
+
 def idealize(mesh: trimesh.Trimesh, mesh_class: str, budget_mm: float,
              enabled: bool = True, angle_deg: float = 6.0, min_faces: int = 30,
              min_area_frac: float = 0.005) -> tuple[trimesh.Trimesh, IdealizeResult]:

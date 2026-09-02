@@ -24,7 +24,10 @@ for rep_path in sorted(out.glob("*/*_report.json")):
     if r["input_name"] in truth:
         t = truth[r["input_name"]]["truth_bbox_measured"]
         err = max(abs(sorted(bbox)[i] - sorted(t)[i]) for i in range(3))
-        dim_check = f"bbox err {err:.2f} mm vs truth {t}"
+        inb = r["before"]["bbox_mm"]
+        err_in = max(abs(sorted(inb)[i] - sorted(t)[i]) for i in range(3))
+        dim_check = (f"bbox err {err:.2f} mm vs CAD truth {t} (the corrupted INPUT was already "
+                     f"{err_in:.2f} mm off — scanner bias scanfix cannot remove without priors)")
     elif name in KNOWN:
         k = KNOWN[name]
         err = max(abs(sorted(bbox)[i] - sorted(k["bbox_mm"])[i]) for i in range(3))

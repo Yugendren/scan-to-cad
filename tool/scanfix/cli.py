@@ -32,7 +32,8 @@ def _add_common(p):
     p.add_argument("-o", "--outdir", type=Path, default=None)
     p.add_argument("--nozzle", type=float, default=0.4)
     p.add_argument("--min-wall", type=float, default=0.8)
-    p.add_argument("--snap-budget", type=float, default=0.15)
+    p.add_argument("--snap-budget", type=lambda s: 0.0 if s == "auto" else float(s), default=0.15,
+                   help="deviation budget in mm, or 'auto' = the mesh's measured noise envelope")
     p.add_argument("--no-idealize", action="store_true")
     p.add_argument("--thicken", type=float, default=0.0, help="EXPERIMENTAL explicit outward offset in mm")
     p.add_argument("--mesh-class", choices=["prismatic", "organic", "mixed"], default=None)

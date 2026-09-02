@@ -111,16 +111,44 @@ def smooth_taubin(mesh: trimesh.Trimesh, steps: int = 10, lam: float = 0.5, mu: 
     return from_ms(ms), Action("smooth_taubin", {"steps": steps, "lambda": lam, "mu": mu})
 
 
+def _topology_ok(mesh: trimesh.Trimesh, require_watertight: bool) -> bool:
+    from .analyze import nonmanifold_edge_count
+    if nonmanifold_edge_count(mesh) > 0:
+        return False
+    return mesh.is_watertight if require_watertight else True
+
+
 def decimate(mesh: trimesh.Trimesh, target_faces: int) -> tuple[trimesh.Trimesh, Action]:
+    """Quadric edge collapse, VERIFIED: if the result is non-manifold or lost
+    watertightness, try a repair pass; if still broken, revert and log. Decimation is
+    a convenience (file size), never worth breaking printability for."""
     if len(mesh.faces) <= target_faces:
         return mesh, Action("decimate", {"target_faces": target_faces}, {"skipped": True})
+    was_watertight = bool(mesh.is_watertight)
     ms = to_ms(mesh)
     ms.meshing_decimation_quadric_edge_collapse(
         targetfacenum=int(target_faces), qualitythr=0.3, preserveboundary=True,
         preservenormal=True, preservetopology=True, planarquadric=True, optimalplacement=True)
     out = from_ms(ms)
-    return out, Action("decimate", {"target_faces": target_faces},
-                       {"faces_before": len(mesh.faces), "faces_after": len(out.faces)})
+    result = {"faces_before": len(mesh.faces), "faces_after": len(out.faces)}
+    if _topology_ok(out, was_watertight):
+        return out, Action("decimate", {"target_faces": target_faces}, result)
+    # repair attempt
+    ms2 = to_ms(out)
+    try:
+        ms2.meshing_repair_non_manifold_edges()
+        ms2.meshing_repair_non_manifold_vertices()
+        ms2.meshing_remove_null_faces()
+        ms2.meshing_remove_unreferenced_vertices()
+        ms2.meshing_close_holes(maxholesize=50, selfintersection=False, newfaceselected=False)
+    except pymeshlab.PyMeshLabException:
+        pass
+    fixed = from_ms(ms2)
+    if _topology_ok(fixed, was_watertight):
+        result.update({"repaired_after_decimation": True, "faces_after": len(fixed.faces)})
+        return fixed, Action("decimate", {"target_faces": target_faces}, result)
+    result.update({"reverted": True, "reason": "decimation broke manifoldness/watertightness and repair failed"})
+    return mesh, Action("decimate", {"target_faces": target_faces}, result)
 
 
 def poisson_remesh(points: np.ndarray, normals: np.ndarray, depth: int = 8) -> trimesh.Trimesh:

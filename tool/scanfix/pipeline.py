@@ -33,21 +33,20 @@ class Options:
     max_hole_edges: int = 5000
 
 
-def classify(mesh: trimesh.Trimesh) -> tuple[str, str]:
-    """Heuristic class: prismatic if a large fraction of area lies in near-planar
-    face groups; organic if almost none. Returned with its evidence string."""
-    from .idealize import grow_planar_regions
-    regions = grow_planar_regions(mesh, angle_deg=6.0, min_faces=30)
-    if not regions:
-        return "organic", "no planar regions of ≥30 faces"
-    total = float(mesh.area)
-    planar = sum(float(mesh.area_faces[r].sum()) for r in regions)
-    frac = planar / total if total else 0.0
-    if frac >= 0.45:
-        return "prismatic", f"{frac*100:.0f}% of area in planar regions"
-    if frac >= 0.15:
-        return "mixed", f"{frac*100:.0f}% of area in planar regions"
-    return "organic", f"{frac*100:.0f}% of area in planar regions"
+def classify(mesh: trimesh.Trimesh, noise_mm: float, budget_mm: float) -> tuple[str, str]:
+    """Heuristic class from the share of area in TRULY planar regions (plane-fit residual
+    within a noise-aware tolerance). Prismatic ≥ 40%, organic < 12%, else mixed.
+    Classification uses a tolerance widened by the measured noise; snapping itself
+    always uses the strict budget."""
+    from .idealize import planar_area_fraction
+    tol = max(budget_mm, 1.5 * noise_mm)
+    frac, count = planar_area_fraction(mesh, fit_tol_mm=tol)
+    ev = f"{frac*100:.0f}% of area in {count} truly planar regions (fit tol {tol:.3f} mm)"
+    if frac >= 0.40:
+        return "prismatic", ev
+    if frac >= 0.12:
+        return "mixed", ev
+    return "organic", ev
 
 
 def run(input_path: Path, outdir: Path, opt: Options) -> dict:
@@ -60,10 +59,17 @@ def run(input_path: Path, outdir: Path, opt: Options) -> dict:
     before = analyze(original)
     before.notes = load_notes + before.notes
 
-    mesh_class, class_src = (opt.mesh_class, "user flag") if opt.mesh_class else classify(original)
+    # budget: explicit number, or "auto" = the mesh's own measured noise envelope
+    budget = opt.snap_budget if opt.snap_budget > 0 else max(before.noise_envelope_mm, 0.02)
+    budget_src = "user" if opt.snap_budget > 0 else f"auto = measured noise envelope {before.noise_envelope_mm} mm"
+    opt = Options(**{**opt.__dict__, "snap_budget": budget})
+
+    mesh_class, class_src = ((opt.mesh_class, "user flag") if opt.mesh_class
+                             else classify(original, before.noise_envelope_mm, budget))
 
     # --- repair -------------------------------------------------------------
     mesh, a = remove_floaters(original); actions.append(a.to_dict())
+    original_kept = mesh  # deviation is measured against the original minus floaters
     mesh, a = clean(mesh); actions.append(a.to_dict())
     mesh, a = close_holes(mesh, opt.max_hole_edges); actions.append(a.to_dict())
     mesh, a = orient(mesh); actions.append(a.to_dict())
@@ -108,7 +114,7 @@ def run(input_path: Path, outdir: Path, opt: Options) -> dict:
 
     # --- certificates --------------------------------------------------------
     after = analyze(print_mesh)
-    dev = deviation(original, restored, opt.snap_budget)
+    dev = deviation(original_kept, restored, opt.snap_budget)
     th = wall_thickness(print_mesh, opt.nozzle, opt.min_wall)
     ori = suggest_orientation(print_mesh)
 
@@ -134,6 +140,7 @@ def run(input_path: Path, outdir: Path, opt: Options) -> dict:
         "version": __version__, "timestamp": dt.datetime.now().isoformat(timespec="seconds"),
         "input": str(input_path), "input_name": input_path.name, "runtime_s": round(time.time() - t0, 2),
         "mesh_class": mesh_class, "class_source": class_src,
+        "budget_mm": budget, "budget_source": budget_src,
         "options": opt.__dict__,
         "outputs": {"restored_stl": str(restored_path), "print_stl": str(print_path), "print_3mf": str(print_3mf)},
         "before": before.to_dict(), "after": after.to_dict(), "actions": actions,

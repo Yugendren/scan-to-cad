@@ -41,11 +41,30 @@ def nonmanifold_edge_count(mesh: trimesh.Trimesh) -> int:
     return int((counts > 2).sum())
 
 
+def is_cad_like(mesh: trimesh.Trimesh, min_area_frac: float = 0.25) -> bool:
+    """CAD-exported meshes have exactly coplanar adjacent triangles (flat faces made of
+    a few large triangles). Scans essentially never do. If ≥ min_area_frac of the area
+    lies in exactly-coplanar facets, treat the mesh as noise-free."""
+    if len(mesh.faces) == 0:
+        return False
+    try:
+        facets = mesh.facets  # groups of adjacent, exactly coplanar faces
+    except Exception:
+        return False
+    if len(facets) == 0:
+        return False
+    area = sum(float(mesh.area_faces[f].sum()) for f in facets)
+    return area / float(mesh.area) >= min_area_frac
+
+
 def estimate_noise_envelope(mesh: trimesh.Trimesh, samples: int = 4000, k: int = 12,
                             seed: int = 0) -> float:
-    """Local roughness: RMS distance of vertices from a plane fit to their k nearest
-    neighbours, taken at the 95th percentile. Sharp edges inflate it slightly, so this
-    is a conservative (larger) budget for flat-region snapping. Units: mm."""
+    """Typical local roughness: median over sampled vertices of the RMS distance of the
+    k nearest neighbours from their best-fit plane. The median (not a high percentile)
+    keeps sharp edges and curvature from masquerading as noise; CAD-like meshes are
+    reported as 0. Units: mm."""
+    if is_cad_like(mesh):
+        return 0.0
     v = mesh.vertices
     if len(v) < k + 1:
         return 0.0
@@ -59,12 +78,10 @@ def estimate_noise_envelope(mesh: trimesh.Trimesh, samples: int = 4000, k: int =
         p = v[ids]
         c = p.mean(axis=0)
         q = p - c
-        # smallest singular vector = plane normal
-        _, s, vt = np.linalg.svd(q, full_matrices=False)
-        n = vt[-1]
-        d = q @ n
+        _, s, vt = np.linalg.svd(q, full_matrices=False)  # smallest singular vector = normal
+        d = q @ vt[-1]
         resid[i] = np.sqrt(np.mean(d * d))
-    return float(np.percentile(resid, 95))
+    return float(np.median(resid))
 
 
 def analyze(mesh: trimesh.Trimesh) -> MeshStats:
@@ -76,6 +93,8 @@ def analyze(mesh: trimesh.Trimesh) -> MeshStats:
     vol = float(mesh.volume) if watertight else None
     edge_len = float(mesh.edges_unique_length.mean()) if len(mesh.faces) else 0.0
     noise = estimate_noise_envelope(mesh)
+    if noise == 0.0 and len(mesh.faces) and is_cad_like(mesh):
+        notes.append("CAD-like mesh (exactly coplanar facets) — treated as noise-free")
 
     if not watertight:
         notes.append(f"not watertight: {be} boundary edges — not printable as-is")
